@@ -1,4 +1,4 @@
-name: Vercel Deploy
+name: Deploy to DigitalOcean
 
 on:
   push:
@@ -6,27 +6,55 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to Vercel
+    name: Deploy to DigitalOcean App Platform (doctl)
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Validate project files
         run: |
           if [ ! -f index.html ]; then echo "index.html not found" && exit 1; fi
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-
-      - name: Install Vercel CLI
-        run: npm install -g vercel@latest
-
-      - name: Deploy to Vercel
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      - name: Install doctl
         run: |
-          vercel --prod --token "$VERCEL_TOKEN" --confirm
+          set -e
+          DOCTL_VERSION="1.99.0"
+          curl -sL "https://github.com/digitalocean/doctl/releases/download/v${DOCTL_VERSION}/doctl-${DOCTL_VERSION}-linux-amd64.tar.gz" | tar -xzv
+          sudo mv doctl /usr/local/bin/doctl
+          doctl version
+
+      - name: Authenticate doctl
+        env:
+          DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+        run: |
+          if [ -z "$DIGITALOCEAN_ACCESS_TOKEN" ]; then echo "DIGITALOCEAN_ACCESS_TOKEN secret is not set" && exit 1; fi
+          doctl auth init -t "$DIGITALOCEAN_ACCESS_TOKEN"
+
+      - name: Deploy to DigitalOcean App Platform
+        env:
+          DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+          DO_APP_ID: ${{ secrets.DO_APP_ID }}
+        run: |
+          # This workflow expects an app spec file at .do/app.yaml in the repository.
+          # You can create the App once from the control panel and set DO_APP_ID in GitHub Secrets
+          # to allow this workflow to update the existing app. Alternatively, include .do/app.yaml
+          # and this workflow will create the app on first run.
+
+          if [ -n "$DO_APP_ID" ]; then
+            echo "Updating existing DigitalOcean App (ID: $DO_APP_ID)..."
+            if [ -f .do/app.yaml ]; then
+              doctl apps update "$DO_APP_ID" --spec .do/app.yaml
+            else
+              echo ".do/app.yaml not found. Cannot update app. Create .do/app.yaml or set DO_APP_ID correctly." && exit 1
+            fi
+          else
+            echo "DO_APP_ID not set. Attempting to create a new App using .do/app.yaml..."
+            if [ -f .do/app.yaml ]; then
+              doctl apps create --spec .do/app.yaml
+            else
+              echo ".do/app.yaml not found. Create an app spec file at .do/app.yaml or set DO_APP_ID in Secrets." && exit 1
+            fi
+          fi
+
