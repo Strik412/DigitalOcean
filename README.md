@@ -38,7 +38,7 @@ Components
 4. GitHub Actions Workflow (optional)
   - Workflows can be added to automate tests and deployments to DigitalOcean using `doctl` and a `DIGITALOCEAN_ACCESS_TOKEN` secret.
 
-🚀 Deployment Flow
+Deployment Flow
 Deployment to DigitalOcean (App Platform — automatic)
 1. Push your code to the `main` branch on GitHub
 2. From the DigitalOcean control panel, create an App and connect your GitHub repository
