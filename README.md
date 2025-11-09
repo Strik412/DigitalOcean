@@ -38,7 +38,7 @@ Components
 4. GitHub Actions Workflow (optional)
   - Workflows can be added to automate tests and deployments to DigitalOcean using `doctl` and a `DIGITALOCEAN_ACCESS_TOKEN` secret.
 
-🚀 Deployment Flow
+Deployment Flow
 Deployment to DigitalOcean (App Platform — automatic)
 1. Push your code to the `main` branch on GitHub
 2. From the DigitalOcean control panel, create an App and connect your GitHub repository
@@ -87,4 +87,4 @@ Notes
 - DigitalOcean App Platform: you can connect your GitHub repo directly and enable automatic deployments on push to `main`.
 - If you want to use CI to deploy from GitHub Actions, store a `DIGITALOCEAN_ACCESS_TOKEN` in GitHub Secrets and use `doctl` to deploy.
 - Docker: Uses `nginx:alpine` to serve static files in a lightweight and efficient way.
-# DigitalOcean
+
