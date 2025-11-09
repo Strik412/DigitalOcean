@@ -87,4 +87,4 @@ Notes
 - DigitalOcean App Platform: you can connect your GitHub repo directly and enable automatic deployments on push to `main`.
 - If you want to use CI to deploy from GitHub Actions, store a `DIGITALOCEAN_ACCESS_TOKEN` in GitHub Secrets and use `doctl` to deploy.
 - Docker: Uses `nginx:alpine` to serve static files in a lightweight and efficient way.
-# DigitalOcean
+
